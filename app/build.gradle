@@ -1,0 +1,94 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs.kotlin'
+    id 'kotlin-parcelize'
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    namespace 'uz.uni_team.date_time_manager'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "uz.uni_team.date_time_manager"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+
+}
+
+ext {
+    nav_version = "2.5.3"
+    retrofit_version = "2.9.0"
+    paging_version = "3.1.1"
+}
+
+dependencies {
+
+    implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
+
+    //noinspection GradleDependency
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // unit testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+
+    //ui testing
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+
+    //live data
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+
+    //view model
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+
+    // Jetpack Navigation
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+    implementation 'androidx.fragment:fragment-ktx:1.5.5'
+
+
+    //  View binding delegate
+    implementation 'com.github.kirich1409:viewbindingpropertydelegate:1.5.6'
+
+    //Dagger Hilt for Dependency Injection
+    //noinspection GradleDependency
+    implementation 'com.google.dagger:hilt-android:2.42'
+    kapt 'com.google.dagger:hilt-compiler:2.42'
+    implementation "androidx.hilt:hilt-navigation-fragment:1.0.0"
+
+    //Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+
+    implementation 'com.karumi:dexter:6.2.3'
+}

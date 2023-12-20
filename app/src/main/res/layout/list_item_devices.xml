@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:background="@drawable/bg_device"
+    android:layout_marginVertical="4dp"
+    android:clickable="true"
+    android:paddingHorizontal="12dp"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/tv_device_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text = "Samsung 12"
+        android:textStyle="bold"
+        android:layout_gravity="center_vertical"
+        android:textColor="@color/black"
+        android:textSize="18sp"/>
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"/>
+
+    <ImageButton
+        android:id="@+id/btn_connect"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_connect"
+        android:background="@android:color/transparent"
+        android:layout_height="wrap_content"
+        android:importantForAccessibility="no" />
+
+    <View
+        android:layout_width="12dp"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
