@@ -5,7 +5,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- api level > = 33 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- api level > = 33 -->
     <uses-permission
         android:name="android.permission.NEARBY_WIFI_DEVICES"
         android:usesPermissionFlags="neverForLocation"
@@ -24,35 +25,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DateTimeManager"
         tools:targetApi="31">
-        <activity
-            android:name=".receiver.DirectReceiverActivity"
-            android:exported="false" />
-        <activity
-            android:name=".sender.DirectSenderActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ExampleActivity"
-            android:exported="false"
-            android:icon="@drawable/ic_launcher_background"
-            android:permission="com.google.socialapp.permission.SHARE_POST"
-            android:theme="@style/Theme.AppCompat.DayNight">
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.DateTimeManager">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
         <receiver android:name=".broadcast.WifiDirectActionBroadcast" />

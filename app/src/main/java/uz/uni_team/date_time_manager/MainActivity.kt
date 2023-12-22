@@ -35,6 +35,9 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.FutureTask
 
 
 @SuppressLint("RestrictedApi")
@@ -125,17 +128,17 @@ class MainActivity : ComponentActivity() {
         }
 
         binding.btnReceive.setOnClickListener {
-            ReceiveMessageTask()
-                .execute()
+            ReceiveMessageTask().execute()
         }
 
         binding.btnSend.setOnClickListener {
-            manager.requestConnectionInfo(channel) { info ->
+           /* manager.requestConnectionInfo(channel) { info ->
                 val host = info.groupOwnerAddress.hostAddress!!
                 SendMessageTask()
                     .execute(host, "Hello")
                 // ReceiveMessageTask().execute()
-            }
+            }*/
+            sendMessage()
         }
         CustomAPI.release()
         checkPermission()
@@ -197,9 +200,7 @@ class MainActivity : ComponentActivity() {
 
     fun updateConnection(device: WifiP2pDevice?) {
         Toast.makeText(
-            this,
-            "Update this device connection is :${device?.status}",
-            Toast.LENGTH_SHORT
+            this, "Update this device connection is :${device?.status}", Toast.LENGTH_SHORT
         ).show()
     }
 
@@ -210,47 +211,7 @@ class MainActivity : ComponentActivity() {
 
     private var socket: Socket? = null
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun transferData() {
-        val p2pManager = WifiP2pManager.ConnectionInfoListener {
-            val owner = it.groupOwnerAddress
-            if (it.groupFormed && it.isGroupOwner) {
-                try {
-                    val serverSocket = ServerSocket(serverPort)
-                    socket = serverSocket.accept()
-                    val f = File(
-                        Environment.getExternalStorageDirectory().absolutePath +
-                                "/${this.packageName}/p2p${System.currentTimeMillis()}.txt"
-                    )
-
-                    val dirs = File(f.parent)
-
-                    dirs.takeIf { !it.exists() }?.apply {
-                        mkdirs()
-                    }
-                    f.createNewFile()
-                    val writer = FileWriter(f, true)
-                    val inputStream = socket?.getInputStream()
-                    inputStream?.bufferedReader()
-                        ?.lines()?.forEach {
-                            writer.append(it)
-                        }
-                    writer.flush()
-                    writer.close()
-                    serverSocket.close()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            } else if (it.groupFormed) {
-                socket = Socket(owner, serverPort)
-            }
-        }
-        manager.requestConnectionInfo(channel, p2pManager)
-    }
-
-
-
-     inner class ReceiveMessageTask : AsyncTask<Void?, String?, Void?>() {
+    inner class ReceiveMessageTask : AsyncTask<Void?, String?, Void?>() {
 
         override fun onProgressUpdate(vararg values: String?) {
             super.onProgressUpdate(*values)
@@ -269,30 +230,29 @@ class MainActivity : ComponentActivity() {
                 // Read data from the input stream
                 val buffer = ByteArray(1024)
                 var bytesRead: Int
-                val builder  = StringBuilder()
+                val builder = StringBuilder()
                 while (inputStream.read(buffer).also { bytesRead = it } != -1) {
                     val receivedMessage = String(buffer, 0, bytesRead)
-                   builder.append(receivedMessage)
+                    builder.append(receivedMessage)
                 }
 
-               // Toast.makeText(this@MainActivity, "Received", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(this@MainActivity, "Received", Toast.LENGTH_SHORT).show()
 
                 /*val f = File(
                     Environment.getExternalStorageDirectory().absolutePath +
                             "/${this@MainActivity.packageName}/p2p${System.currentTimeMillis()}.txt"
                 )*/
 
-               /* val dirs = File(f.parent)
+                /* val dirs = File(f.parent)
 
-                dirs.takeIf { !it.exists() }?.apply {
-                    mkdirs()
-                }
-                f.createNewFile()
-                val writer = FileWriter(f, true)*/
-               /* writer.append(builder.toString())
+                 dirs.takeIf { !it.exists() }?.apply {
+                     mkdirs()
+                 }
+                 f.createNewFile()
+                 val writer = FileWriter(f, true)*//* writer.append(builder.toString())
                 writer.flush()
                 writer.close()*/
-                Log.e("Received","${builder.toString()}")
+                Log.e("Received", "$builder")
                 // Close the server socket
                 serverSocket.close()
             } catch (e: IOException) {
@@ -303,12 +263,120 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    private fun sendMessage() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            manager.requestConnectionInfo(channel) { info ->
+                val host = info.groupOwnerAddress.hostAddress
+                val callable = Callable {
+                    val socket = Socket()
+                    socket.bind(null)
+                    socket.connect(InetSocketAddress(host, 8888), 5000)
+                    val outputStream = socket.getOutputStream()
+                    val message = """
+                {
+                  "branchId": 321106637,
+                  "changeAmount": 0,
+                  "companyId": 320763645,
+                  "companyTin": "306351564",
+                  "customerContact": "",
+                  "customerName": "",
+                  "discountPercent": 0.0,
+                  "isFiscalSend": false,
+                  "isRefunded": false,
+                  "isSms": false,
+                  "isSynced": false,
+                  "paymentBillId": "",
+                  "paymentProviderId": 0,
+                  "receiptDate": "Dec 21, 2023 11:03:36 AM",
+                  "receiptDetails": [
+                    {
+                      "advance": {
+                        "isEnabled": false
+                      },
+                      "amount": 129000.0000000000,
+                      "barcode": "4780010544119",
+                      "credit": {
+                        "isEnabled": false
+                      },
+                      "discountAmount": 0,
+                      "discountPercent": 0.0,
+                      "isFavourite": true,
+                      "label": "",
+                      "marks": [],
+                      "name": "Водка: Shohrud, \"SHOHRUD PARLAMENT\" крепость 37,5% стеклянная бутылка 0,7 л",
+                      "ownerType": 1,
+                      "packageCode": "1442555",
+                      "packageName": "дона (бутилка) 0.7 литр",
+                      "price": 43000.0000,
+                      "productId": 321293993,
+                      "productOrigins": {
+                        "code": "IMPORT",
+                        "id": 2,
+                        "originAmount": 0,
+                        "originName": "Куплено"
+                      },
+                      "productUnit": {
+                        "code": 100001,
+                        "description": "штук",
+                        "id": 2,
+                        "isCountable": false,
+                        "name": "шт",
+                        "nameRu": "шт",
+                        "nameUz": "sht"
+                      },
+                      "quantity": 3.0,
+                      "receiptDetailId": 152,
+                      "uid": "1703305494021",
+                      "unitId": 2,
+                      "vatAmount": 0.000,
+                      "vatBarcode": "02208001001277802",
+                      "vatPercent": 0.00,
+                      "vatRate": 0.00
+                    }
+                  ],
+                  "receiptLatitude": 41.271358489990234,
+                  "receiptLongitude": 69.2640609741211,
+                  "receiptPayments": [
+                    {
+                      "amount": 129000.0000000000,
+                      "type": "CASH"
+                    }
+                  ],
+                  "status": "SALE",
+                  "terminalModel": "P10",
+                  "terminalSerialNumber": "P10A4230909000821",
+                  "totalCard": 0E-10,
+                  "totalCash": 129000.0000000000,
+                  "totalCost": 129000.0000000000,
+                  "totalDiscount": 0,
+                  "totalExcise": 0,
+                  "totalLoyaltyCard": 0,
+                  "totalPaid": 129000.0000000000,
+                  "totalVAT": 0.000,
+                  "uid": "17033054940212",
+                  "userId": 320763647,
+                  "userName": "Nayimov Og'abek"
+                }
+         
+            """.trimIndent()
+                    outputStream.write(message.toByteArray())
+                    socket.close()
+                    outputStream.close()
+                    Log.e("Send","Success send")
+                }
+                val executor = Executors.newSingleThreadExecutor()
+                val futureTask = FutureTask(callable)
+                executor.execute(futureTask)
+
+            }
+        }
+    }
+
     @Deprecated("Deprecated in Java")
     private class SendMessageTask : AsyncTask<String?, Void?, Void?>() {
         @Deprecated("Deprecated in Java")
         override fun doInBackground(vararg p0: String?): Void? {
             val hostAddress = p0[0]
-            val message = p0[1]
             val socket = Socket()
             try {
                 // Connect to the group owner (server) using the host address and a predefined port
@@ -317,6 +385,94 @@ class MainActivity : ComponentActivity() {
 
                 // Get the output stream from the socket
                 val outputStream = socket.getOutputStream()
+
+                val message = """
+                {
+                  "branchId": 321106637,
+                  "changeAmount": 0,
+                  "companyId": 320763645,
+                  "companyTin": "306351564",
+                  "customerContact": "",
+                  "customerName": "",
+                  "discountPercent": 0.0,
+                  "isFiscalSend": false,
+                  "isRefunded": false,
+                  "isSms": false,
+                  "isSynced": false,
+                  "paymentBillId": "",
+                  "paymentProviderId": 0,
+                  "receiptDate": "Dec 21, 2023 11:03:36 AM",
+                  "receiptDetails": [
+                    {
+                      "advance": {
+                        "isEnabled": false
+                      },
+                      "amount": 129000.0000000000,
+                      "barcode": "4780010544119",
+                      "credit": {
+                        "isEnabled": false
+                      },
+                      "discountAmount": 0,
+                      "discountPercent": 0.0,
+                      "isFavourite": true,
+                      "label": "",
+                      "marks": [],
+                      "name": "Водка: Shohrud, \"SHOHRUD PARLAMENT\" крепость 37,5% стеклянная бутылка 0,7 л",
+                      "ownerType": 1,
+                      "packageCode": "1442555",
+                      "packageName": "дона (бутилка) 0.7 литр",
+                      "price": 43000.0000,
+                      "productId": 321293993,
+                      "productOrigins": {
+                        "code": "IMPORT",
+                        "id": 2,
+                        "originAmount": 0,
+                        "originName": "Куплено"
+                      },
+                      "productUnit": {
+                        "code": 100001,
+                        "description": "штук",
+                        "id": 2,
+                        "isCountable": false,
+                        "name": "шт",
+                        "nameRu": "шт",
+                        "nameUz": "sht"
+                      },
+                      "quantity": 3.0,
+                      "receiptDetailId": 152,
+                      "uid": "1703305494021",
+                      "unitId": 2,
+                      "vatAmount": 0.000,
+                      "vatBarcode": "02208001001277802",
+                      "vatPercent": 0.00,
+                      "vatRate": 0.00
+                    }
+                  ],
+                  "receiptLatitude": 41.271358489990234,
+                  "receiptLongitude": 69.2640609741211,
+                  "receiptPayments": [
+                    {
+                      "amount": 129000.0000000000,
+                      "type": "CASH"
+                    }
+                  ],
+                  "status": "SALE",
+                  "terminalModel": "P10",
+                  "terminalSerialNumber": "P10A4230909000821",
+                  "totalCard": 0E-10,
+                  "totalCash": 129000.0000000000,
+                  "totalCost": 129000.0000000000,
+                  "totalDiscount": 0,
+                  "totalExcise": 0,
+                  "totalLoyaltyCard": 0,
+                  "totalPaid": 129000.0000000000,
+                  "totalVAT": 0.000,
+                  "uid": "17033054940212",
+                  "userId": 320763647,
+                  "userName": "Nayimov Og'abek"
+                }
+         
+            """.trimIndent()
 
                 // Write the message to the output stream
                 outputStream.write(message?.toByteArray())
@@ -331,6 +487,7 @@ class MainActivity : ComponentActivity() {
             return null
         }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

@@ -40,6 +40,9 @@ android {
     buildFeatures {
         viewBinding true
     }
+    dataBinding {
+        enabled = true
+    }
 
 }
 
@@ -91,4 +94,5 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
 
     implementation 'com.karumi:dexter:6.2.3'
+
 }
