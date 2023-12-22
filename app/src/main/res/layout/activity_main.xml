@@ -50,6 +50,18 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/connection_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Host"
+        android:layout_marginVertical="4dp"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        tools:ignore="HardcodedText" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_devices"
         android:layout_width="match_parent"
